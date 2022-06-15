@@ -1,0 +1,16 @@
+{
+    "id": "0dc8312a-f8aa-44cb-bbef-a9e9cf88f243",
+    "version": "0.0.1",
+    "requiredApiVersion": "^1.19.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Aswini",
+        "homepage": "github.com/aswinidev",
+        "support": "github.com/aswinidev"
+    },
+    "name": "bbb.meet",
+    "nameSlug": "bbbmeet",
+    "classFile": "BbbMeetApp.ts",
+    "description": "A weekly meeting and video archiving system",
+    "implements": []
+}
