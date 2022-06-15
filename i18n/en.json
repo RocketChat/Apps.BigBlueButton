@@ -1,0 +1,8 @@
+{
+	"bbb_url": "Url",
+	"bbb_url_description": "The Url where BBB is running;",
+	"bbb_shared_secret": "Shared Secret",
+	"bbb_shared_secret_description": "",
+	"bbb_register_hook": "Register Hook",
+	"bbb_register_hook_description": "Register a Hook on BBB to close video conferences automatically when they end. Requires the `bbb-webhook` package."
+}
