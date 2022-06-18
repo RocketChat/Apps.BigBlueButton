@@ -21,11 +21,13 @@ import { IJobContext } from '@rocket.chat/apps-engine/definition/scheduler';
 import { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { TextObjectType } from '@rocket.chat/apps-engine/definition/uikit';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { DebugCommand } from './commands/DebugCommand';
 import { HelpCommand } from './commands/HelpCommand';
 import { JoinCommand } from './commands/JoinCommand';
-import { StopReminder } from './commands/StopReminder';
+// import { StopReminder } from './commands/StopReminder';
 import { WebhookEndpoint } from './endpoints/webhook';
-import { jobId } from './enums/jobid';
+import { jobId } from './reminder/enums/jobid';
+import { weeklyNotification } from './reminder/processors/weeklyNotification';
 import { AppSettings } from './settings/appsettings';
 import { BbbSettings } from './settings/bbbsettings';
 
@@ -102,9 +104,10 @@ export class BbbMeetApp extends App {
         await Promise.all(AppSettings.map((setting) => configuration.settings.provideSetting(setting)));
         await Promise.all(BbbSettings.map((setting) => configuration.settings.provideSetting(setting)));
 
-        await configuration.slashCommands.provideSlashCommand(new StopReminder())
+        // await configuration.slashCommands.provideSlashCommand(new StopReminder())
         await configuration.slashCommands.provideSlashCommand(new JoinCommand())
         await configuration.slashCommands.provideSlashCommand(new HelpCommand())
+        await configuration.slashCommands.provideSlashCommand(new DebugCommand())
 
         configuration.api.provideApi({
             visibility: ApiVisibility.PUBLIC,
@@ -116,45 +119,19 @@ export class BbbMeetApp extends App {
         await configuration.scheduler.registerProcessors([
             {
                 id: jobId.Reminder,
-                processor: async (jobContext: IJobContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> => {
-                    const block = modify.getCreator().getBlockBuilder()
-                
-                    this.getLogger().log('Reached Processor')
-                    //Creating the block template 
-                    block.addSectionBlock({
-                        text: {
-                            type: TextObjectType.PLAINTEXT,
-                            text: 'The scheduled weekly meeting is about to start! Join by clicking on the "Join" button below'
-                        }
-                    })
-                    block.addActionsBlock({
-                        elements: [
-                            block.newButtonElement({
-                                actionId: "joinbutton",
-                                text: {
-                                    type: TextObjectType.PLAINTEXT,
-                                    text: 'Join'
-                                },
-                            })
-                        ]
-                    })
-                    //Find the meeting channel from the App settings
-                    const setting = read.getEnvironmentReader().getSettings()
-                    const roomname = await setting.getValueById('Meeting_Channel')
-                    const room = await read.getRoomReader().getByName(roomname);
-                    const sender: IUser = (await read.getUserReader().getAppUser()) as IUser
-                
-                    if (room === undefined){
-                        console.log(`Room ${roomname} doesn't exist`)
-                    } else {
-                        await modify.getCreator().finish(
-                            modify.getCreator().startMessage().setSender(sender).addBlocks(block.getBlocks()).setRoom(room)
-                        )
-                    }
-                    
-                }
+                processor: weeklyNotification,
             }
-        ]);
-        
+        ]); 
     }
 }
+
+// @todo - remove the requirement of the moderatorPW of the BBB when the user tries to use the join meet 
+//         command. Rather try to make a different access passwords app settings to authenticate user.
+//         We dont let the users know the API call tokens.
+//         (Felipe sir's Suggestion)
+// @todo - multiple room support
+// @todo - date and time for different timezones
+// @todo - based on team id instead of rooms (different instances for each team)
+//         to do this we may have to have a day argument and time argument along with a new slash command
+//         (timezone can be given in the settings)
+// @todo - use the day and time and then parse it with the timezone and register the process
