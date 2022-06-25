@@ -90,8 +90,26 @@ export class BBBProvider implements IVideoConfProvider {
 
 	private parser: XMLParser;
 
+	public capabilities = {
+		mic: false,
+		cam: false,
+		title: true,
+	};
+
 	constructor(private readonly app: BigBlueButtonApp) {
 		this.parser = new XMLParser();
+	}
+
+	public async isFullyConfigured(): Promise<boolean> {
+		if (!this.url) {
+			return false;
+		}
+
+		if (!this.secret) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public async generateUrl(call: VideoConfData): Promise<string> {
@@ -177,10 +195,10 @@ export class BBBProvider implements IVideoConfProvider {
 		}
 
 		const [webhookEndpoint] = this.app.getAccessors().providedApiEndpoints.filter((e) => e.path === 'hook/:id');
-		const callbackURL = encodeURI(await this.getAbsoluteUrl(webhookEndpoint.computedPath.replace(':id', call._id)));
-		this.app.getLogger().debug('Hook API', callbackURL);
-
 		if (this.app.registerHook) {
+			const callbackURL = encodeURI(await this.getAbsoluteUrl(webhookEndpoint.computedPath.replace(':id', call._id)));
+			this.app.getLogger().debug('Hook API', callbackURL);
+
 			// #ToDo: We should probably destroy this hook somewhere - BBB will keep it forever unless it fails too much.
 			const hookApi = this.getUrlFor('hooks/create', {
 				meetingID: call._id,
