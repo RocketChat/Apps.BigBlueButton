@@ -116,10 +116,11 @@ export class BBBProvider implements IVideoConfProvider {
 		this.checkConfiguration();
 
 		await this.createMeeting(call);
+		const meetingID = call._id;
 
 		return this.getUrlFor('join', {
 			password: 'rocket.chat.attendee',
-			meetingID: call._id,
+			meetingID,
 			fullName: 'Guest',
 			userID: 'guest',
 			joinViaHtml5: true,
@@ -128,10 +129,11 @@ export class BBBProvider implements IVideoConfProvider {
 	}
 
 	public async customizeUrl(call: VideoConfDataExtended, user: IVideoConferenceUser, _options: IVideoConferenceOptions): Promise<string> {
+		const meetingID = call._id;
 		if (!user) {
 			return this.getUrlFor('join', {
 				password: 'rocket.chat.attendee',
-				meetingID: call._id,
+				meetingID,
 				fullName: 'Guest',
 				userID: 'guest',
 				joinViaHtml5: true,
@@ -143,7 +145,7 @@ export class BBBProvider implements IVideoConfProvider {
 
 		return this.getUrlFor('join', {
 			password: isModerator ? 'rocket.chat.moderator' : 'rocket.chat.attendee',
-			meetingID: call._id,
+			meetingID,
 			fullName: user.name || user.username,
 			userID: user._id,
 			joinViaHtml5: true,
@@ -161,9 +163,11 @@ export class BBBProvider implements IVideoConfProvider {
 	private async createMeeting(call: VideoConfData): Promise<void> {
 		this.app.getLogger().log('Creating new meeting', call._id);
 
+		const meetingID = call._id;
+
 		const createUrl = this.getUrlFor('create', {
-			name: call.type === 'direct' ? 'Direct' : call.title || 'Unnamed',
-			meetingID: call._id,
+			name: call.title || 'Rocket.Chat',
+			meetingID,
 			attendeePW: 'rocket.chat.attendee',
 			moderatorPW: 'rocket.chat.moderator',
 			welcome: '<br>Welcome to <b>%%CONFNAME%%</b>!',
@@ -201,7 +205,7 @@ export class BBBProvider implements IVideoConfProvider {
 
 			// #ToDo: We should probably destroy this hook somewhere - BBB will keep it forever unless it fails too much.
 			const hookApi = this.getUrlFor('hooks/create', {
-				meetingID: call._id,
+				meetingID,
 				callbackURL,
 			});
 

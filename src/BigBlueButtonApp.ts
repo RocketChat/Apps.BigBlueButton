@@ -15,6 +15,7 @@ import type { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import { AppSetting, settings } from './settings';
 import { BBBProvider } from './videoConfProvider';
 import { EventHookEndpoint } from './endpoints/EventHook';
+import { BBBSlashCommand } from './slashCommand';
 
 export class BigBlueButtonApp extends App {
 	private provider: BBBProvider | undefined;
@@ -27,6 +28,7 @@ export class BigBlueButtonApp extends App {
 
 	protected async extendConfiguration(configuration: IConfigurationExtend): Promise<void> {
 		await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));
+		await configuration.slashCommands.provideSlashCommand(new BBBSlashCommand(this));
 
 		const provider = this.getProvider();
 		await configuration.videoConfProviders.provideVideoConfProvider(provider);
@@ -66,7 +68,7 @@ export class BigBlueButtonApp extends App {
 		}
 	}
 
-	private getProvider(): BBBProvider {
+	public getProvider(): BBBProvider {
 		if (!this.provider) {
 			this.provider = new BBBProvider(this);
 		}

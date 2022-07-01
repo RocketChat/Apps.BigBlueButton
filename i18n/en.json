@@ -1,4 +1,6 @@
 {
+	"params_example": "[room name (optional)]",
+	"command_description": "Generate a Big Blue Button video conference.",
 	"bbb_url": "Url",
 	"bbb_url_description": "The Url where BBB is running;",
 	"bbb_shared_secret": "Shared Secret",
