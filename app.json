@@ -1,0 +1,16 @@
+{
+    "id": "c95ba73a-0485-4d12-ae8a-a3e68330065a",
+    "version": "1.0.3",
+    "requiredApiVersion": "^1.33.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Rocket.Chat Technologies Corp.",
+        "homepage": "https://github.com/RocketChat/Rocket.Chat",
+        "support": "https://github.com/RocketChat/Rocket.Chat"
+    },
+    "name": "Big Blue Button",
+    "nameSlug": "bigbluebutton",
+    "classFile": "src/BigBlueButtonApp.ts",
+    "description": "Big Blue Button Conference Calls Provider",
+    "implements": []
+}
