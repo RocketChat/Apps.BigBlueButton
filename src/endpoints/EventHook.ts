@@ -1,6 +1,6 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { VideoConferenceStatus } from '@rocket.chat/apps-engine/definition/videoConferences/IVideoConference';
+// import { VideoConferenceStatus } from '@rocket.chat/apps-engine/definition/videoConferences/IVideoConference';
 
 import type { BigBlueButtonApp } from '../BigBlueButtonApp';
 
@@ -61,7 +61,7 @@ export class EventHookEndpoint extends ApiEndpoint {
 
 		switch (eventType) {
 			case 'meeting-ended':
-				videoConf.setEndedAt(new Date()).setStatus(VideoConferenceStatus.ENDED);
+				videoConf.setStatus(3);
 				break;
 			case 'user-joined':
 				break;
