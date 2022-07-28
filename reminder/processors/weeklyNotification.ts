@@ -1,14 +1,12 @@
 import { IHttp, IModify, IPersistence, IRead } from "@rocket.chat/apps-engine/definition/accessors"
 import { IJobContext } from "@rocket.chat/apps-engine/definition/scheduler"
-import { TextObjectType } from "@rocket.chat/apps-engine/definition/uikit"
+import { BlockBuilder, TextObjectType } from "@rocket.chat/apps-engine/definition/uikit"
 import { IUser } from "@rocket.chat/apps-engine/definition/users"
 
 
 export const weeklyNotification = async (jobContext: IJobContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> => {
     const block = modify.getCreator().getBlockBuilder()
-
-    // this.getLogger().log('Reached Processor') // "this" may be undefined
-    //Creating the block template 
+    // this.getLogger().log('Reached Processor')
     block.addSectionBlock({
         text: {
             type: TextObjectType.PLAINTEXT,
@@ -26,18 +24,11 @@ export const weeklyNotification = async (jobContext: IJobContext, read: IRead, m
             })
         ]
     })
-    //Find the meeting channel from the App settings
-    const setting = read.getEnvironmentReader().getSettings()
-    const roomname = await setting.getValueById('Meeting_Channel')
-    const room = await read.getRoomReader().getByName(roomname);
     const sender: IUser = (await read.getUserReader().getAppUser()) as IUser
-
-    if (room === undefined){
-        console.log(`Room ${roomname} doesn't exist`)
-    } else {
+    const commandroom = jobContext.room
+    if(commandroom!=undefined){
         await modify.getCreator().finish(
-            modify.getCreator().startMessage().setSender(sender).addBlocks(block.getBlocks()).setRoom(room)
+            modify.getCreator().startMessage().setSender(sender).addBlocks(block.getBlocks()).setRoom(commandroom)
         )
     }
-    
 }
