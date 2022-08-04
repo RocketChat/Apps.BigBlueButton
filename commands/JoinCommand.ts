@@ -4,14 +4,13 @@ import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import {ISlashCommand, SlashCommandContext} from "@rocket.chat/apps-engine/definition/slashcommands";
 import { BlockBuilder, TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
-import { sha1 } from "../SHA1/sha1";
+import { getMeetingUrl } from "../functions/getMeetingUrl";
 
 export class JoinCommand implements ISlashCommand {
     public command = "joinmeet";
     public i18nDescription = "Lets you join weekly meetings";
     public providesPreview = false;
     public i18nParamsExample = "";
-    private sharedSecret : string;
 
     public async executor(
         context: SlashCommandContext,
@@ -21,12 +20,21 @@ export class JoinCommand implements ISlashCommand {
         persis: IPersistence
     ): Promise<void> {
         const set = read.getEnvironmentReader().getSettings()
-        const meetroomname = await set.getValueById('Meeting_Channel')
-        const meetroom = await read.getRoomReader().getByName(meetroomname);
+        const roomstr = await set.getValueById('Meeting_Channels')
+        const checkroom = async (name: string): Promise<string | undefined> => {
+            const room = await read.getRoomReader().getByName(name)
+            if (room === undefined) {
+                return undefined
+            }
+            return room.slugifiedName
+        }
+        
+        const rooms : Array<string> = await Promise.all(roomstr.split(',').map(checkroom).filter(Boolean))
+
         const commandroom = context.getRoom()
-        if(meetroom === undefined){
-            console.log(`Room ${meetroomname} doesn't exist`)
-        } else if(meetroom.id !== commandroom.id) {
+        const roomind = rooms.indexOf(commandroom.slugifiedName)
+
+        if(roomind == -1) {
             const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
             const room : IRoom = context.getRoom()
             
@@ -45,102 +53,35 @@ export class JoinCommand implements ISlashCommand {
             })
             return;
         }
-        // Collect all the required settings
-        const bbbserver = await set.getValueById('BigBlueButton_Server_URL')
-        this.sharedSecret = await set.getValueById('BigBlueButton_sharedSecret')
+
         const moderatorPW = await set.getValueById('BigBlueButton_moderatorPW')
         const attendeePW = await set.getValueById('BigBlueButton_attendeePW')
-        const meetingId = await set.getValueById('BigBlueButton_Meeting_Id')
-        const meetingName = await set.getValueById('BigBlueButton_Meeting_Name')
 
-        const [role, password]: Array<string> = context.getArguments()
+        const [password]: Array<string> = context.getArguments()
 
-        switch (role){
-            case "moderator":
-                if(password === moderatorPW){
-                    break;
-                } else {
-                    const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
-                    const room : IRoom = context.getRoom()
-                    
-                    const blockBuilder: BlockBuilder = modify.getCreator().getBlockBuilder()
-                    blockBuilder.addSectionBlock({
-                        text: {
-                            type: TextObjectType.PLAINTEXT,
-                            text: "Wrong Password!"
-                        }
-                    })
-
-                    await modify.getNotifier().notifyUser(context.getSender(), {
-                        sender,
-                        room,
-                        blocks: blockBuilder.getBlocks()
-                    })
-                    return;
-                }
+        if(password!==moderatorPW && password!==attendeePW){
+            const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
+            const room : IRoom = context.getRoom()
             
-            case "attendee":
-                if(password === attendeePW){
-                    break;
-                } else {
-                    const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
-                    const room : IRoom = context.getRoom()
-                    
-                    const blockBuilder: BlockBuilder = modify.getCreator().getBlockBuilder()
-                    blockBuilder.addSectionBlock({
-                        text: {
-                            type: TextObjectType.PLAINTEXT,
-                            text: "Wrong Password!"
-                        }
-                    })
-
-                    await modify.getNotifier().notifyUser(context.getSender(), {
-                        sender,
-                        room,
-                        blocks: blockBuilder.getBlocks()
-                    })
-                    return;
+            const blockBuilder: BlockBuilder = modify.getCreator().getBlockBuilder()
+            blockBuilder.addSectionBlock({
+                text: {
+                    type: TextObjectType.PLAINTEXT,
+                    text: "Wrong Password!"
                 }
+            })
 
-            default:
-                const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
-                const room : IRoom = context.getRoom()
-                
-                const blockBuilder: BlockBuilder = modify.getCreator().getBlockBuilder()
-                blockBuilder.addSectionBlock({
-                    text: {
-                        type: TextObjectType.PLAINTEXT,
-                        text: "Please Enter Valid Arguments"
-                    }
-                })
-
-                await modify.getNotifier().notifyUser(context.getSender(), {
-                    sender,
-                    room,
-                    blocks: blockBuilder.getBlocks()
-                })
-                return;
-
+            await modify.getNotifier().notifyUser(context.getSender(), {
+                sender,
+                room,
+                blocks: blockBuilder.getBlocks()
+            })
+            return;
         }
 
-        // Create the query string
-        const query = `name=${meetingName}&meetingID=${meetingId}&attendeePW=${attendeePW}&moderatorPW=${moderatorPW}&record=true`
-        const sha1string = "create" + query + `${this.sharedSecret}`
-        // Calculate sha1 value
-        const sha = sha1(sha1string)
-        //Generate the final url
-        const url = bbbserver + "/bigbluebutton/api/create?" + query + `&checksum=${sha}`
+        const meeetingURL = await getMeetingUrl(read,password,context,http)
         
-        //make the create call
-        const response = await http.get(url)
-        
-        if(response.statusCode === 200){
-            //Create the join query string
-            const joinquery = `fullName=something&meetingID=${meetingId}&password=${password}&redirect=true`
-            const joinsha1string = "join" + joinquery + `${this.sharedSecret}`
-            const joinsha1 = sha1(joinsha1string)
-            const joinurl = bbbserver + "/bigbluebutton/api/join?" + joinquery + `&checksum=${joinsha1}`
-
+        if(meeetingURL !== undefined){
             const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
             const room : IRoom = context.getRoom()
             
@@ -159,7 +100,7 @@ export class JoinCommand implements ISlashCommand {
                             type: TextObjectType.PLAINTEXT,
                             text: 'Join'
                         },
-                        url: joinurl
+                        url: meeetingURL
                     })
                 ]
             })

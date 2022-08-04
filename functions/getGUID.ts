@@ -8,4 +8,4 @@ export function getGUID(): string{
     return guid;
 }
 
-// use this to generate the meeting id instead of putting it in app settings
+// This is used to generate the meeting id instead of putting it in app settings

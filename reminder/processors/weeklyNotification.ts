@@ -10,19 +10,8 @@ export const weeklyNotification = async (jobContext: IJobContext, read: IRead, m
     block.addSectionBlock({
         text: {
             type: TextObjectType.PLAINTEXT,
-            text: 'The scheduled weekly meeting is about to start! Join by clicking on the "Join" button below'
+            text: "The scheduled weekly meeting is about to start! Join by using the /joinmeet command"
         }
-    })
-    block.addActionsBlock({
-        elements: [
-            block.newButtonElement({
-                actionId: "joinbutton",
-                text: {
-                    type: TextObjectType.PLAINTEXT,
-                    text: 'Join'
-                },
-            })
-        ]
     })
     const sender: IUser = (await read.getUserReader().getAppUser()) as IUser
     const commandroom = jobContext.room

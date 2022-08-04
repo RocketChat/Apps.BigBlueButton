@@ -24,7 +24,7 @@ export async function getMeetingUrl(read: IRead, password: string, context: Slas
     const response = await http.get(url)
 
     if(response.statusCode === 200){
-        const joinquery = `fullName=something&meetingID=${meetingId}&password=${password}&redirect=true`
+        const joinquery = `fullName=${sender.name}&meetingID=${meetingId}&password=${password}&redirect=true`
         const joinsha1string = "join" + joinquery + `${this.sharedSecret}`
         const joinsha1 = sha1(joinsha1string)
         const joinurl = bbbserver + "/bigbluebutton/api/join?" + joinquery + `&checksum=${joinsha1}`
