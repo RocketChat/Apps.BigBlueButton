@@ -1,9 +1,6 @@
 import { IRead, IModify, IHttp, IPersistence, IModifyCreator, IMessageBuilder, ILogger  } from "@rocket.chat/apps-engine/definition/accessors";
-import { IMessage } from "@rocket.chat/apps-engine/definition/messages";
-import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import {ISlashCommand, SlashCommandContext} from "@rocket.chat/apps-engine/definition/slashcommands";
-import { BlockBuilder, TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
-import { IUser } from "@rocket.chat/apps-engine/definition/users";
+import { getSchedule, persistSchedule } from "../persistence/ReminderPersistence";
 
 export class ScheduleMeetCommand implements ISlashCommand {
     public command = "schedulemeet";
@@ -19,7 +16,6 @@ export class ScheduleMeetCommand implements ISlashCommand {
         http: IHttp,
         persis: IPersistence
     ): Promise<void> {
-        // await modify.getScheduler().cancelJob(jobId.Reminder)
         const set = read.getEnvironmentReader().getSettings()
         const roomstr = await set.getValueById('Meeting_Channels')
         const checkroom = async (name: string): Promise<string | undefined> => {
@@ -29,20 +25,10 @@ export class ScheduleMeetCommand implements ISlashCommand {
             }
             return room.slugifiedName
         }
-        
-        // const rooms : Array<IRoom> = await Promise.all(roomstr.split(',').map(toiroom).filter(Boolean))
 
         const rooms : Array<string> = await Promise.all(roomstr.split(',').map(checkroom).filter(Boolean))
 
         const commandroom = context.getRoom()
-
-        // if(!rooms.includes(commandroom)){
-        //     // this.logger.debug(`room is not a meeting channel`)
-        //     return;
-        // }
-
-        const roomind = rooms.indexOf(commandroom.slugifiedName)
-        // console.log(rooms)
 
         const [time, day]: Array<string> = context.getArguments()
         var [hour,minute] = time.split(":")
@@ -52,31 +38,62 @@ export class ScheduleMeetCommand implements ISlashCommand {
 
         const dayind = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(day)
 
-        // debug code
-        const sender : IUser = (await read.getUserReader().getAppUser()) as IUser
-        const blockBuilder: BlockBuilder = modify.getCreator().getBlockBuilder()
-        blockBuilder.addSectionBlock({
-            text: {
-                type: TextObjectType.PLAINTEXT,
-                text: `${mins} ${hrs} * * ${dayind}\n ${commandroom.slugifiedName}\n meet${roomind}`
-                // text: `${rooms[0].slugifiedName}  ${commandroom.slugifiedName}  ${rooms[0]==commandroom}  ${roomind}`
+        await persistSchedule(persis,commandroom.slugifiedName, {data : `${mins};${hrs};${dayind}`})
+
+        var sch = new Array(7);
+
+        for (var i = 0; i < sch.length; i++) {
+            sch[i] = new Array(24);
+        }
+        for (var i = 0; i < sch.length; i++) {
+            for(var j=0;j<sch[i].length;j++){
+                sch[i][j] = new Array(60);
             }
-        })
+        }
+        var res;
+        for (const roomname of rooms){
+            res = await getSchedule(read.getPersistenceReader(),roomname)
 
-        await modify.getNotifier().notifyUser(context.getSender(), {
-            sender,
-            room: commandroom,
-            blocks: blockBuilder.getBlocks()
-        })
+            const [mins, hrs, dayind]: Array<string> = res.data.split(";")
+            const h = parseInt(hrs as string, 10)
+            const m = parseInt(mins as string, 10)
+            const d = parseInt(dayind as string, 10)
 
+            sch[d][h][m] = roomname
+        }
 
-
-
+        var currentdate = new Date(); 
+        var dy = currentdate.getDay()
+        var hr = currentdate.getHours();
+        var mn = currentdate.getMinutes();
+        var scheduleroom;
+        var flag = false
+        for(let i=0;i<7;i++){
+            for(let j=0;j<24;j++){
+                for(let k=0;k<60;k++){
+                    if(sch[(dy + i)%7][(hr + j)%24][(mn +k)%60]!==undefined){
+                        scheduleroom = sch[(dy + i)%7][(hr + j)%24][(mn +k)%60]
+                        dy = (dy + i)%7
+                        hr = (hr + j)%24
+                        mn = (mn +k)%60
+                        flag = true
+                        break;
+                    }
+                }
+                if(flag){
+                    break;
+                }
+            }
+            if(flag){
+                break;
+            }
+        }
+        
         await modify.getScheduler().scheduleRecurring({
-            id: `meet${roomind}`,
-            interval: `20 seconds`,
+            id: `weeklyreminder`,
+            interval: `${mn} ${hr} * * ${dy}`,
             skipImmediate: true,
-            data: {room: commandroom}
+            data: {room: scheduleroom}
         })
     }
 }
