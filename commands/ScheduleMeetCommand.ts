@@ -4,7 +4,6 @@ import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import {ISlashCommand, SlashCommandContext} from "@rocket.chat/apps-engine/definition/slashcommands";
 import { BlockBuilder, TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
-import { jobId } from "../reminder/enums/jobid";
 
 export class ScheduleMeetCommand implements ISlashCommand {
     public command = "schedulemeet";
