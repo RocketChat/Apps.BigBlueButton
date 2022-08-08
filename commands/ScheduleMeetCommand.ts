@@ -1,6 +1,4 @@
 import { IRead, IModify, IHttp, IPersistence, IModifyCreator, IMessageBuilder, ILogger  } from "@rocket.chat/apps-engine/definition/accessors";
-import { IMessage } from "@rocket.chat/apps-engine/definition/messages";
-import { IRoom } from "@rocket.chat/apps-engine/definition/rooms";
 import {ISlashCommand, SlashCommandContext} from "@rocket.chat/apps-engine/definition/slashcommands";
 import { BlockBuilder, TextObjectType } from "@rocket.chat/apps-engine/definition/uikit";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
@@ -68,9 +66,6 @@ export class ScheduleMeetCommand implements ISlashCommand {
             room: commandroom,
             blocks: blockBuilder.getBlocks()
         })
-
-
-
 
         await modify.getScheduler().scheduleRecurring({
             id: `meet${roomind}`,
