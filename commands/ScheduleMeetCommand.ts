@@ -33,12 +33,12 @@ export class ScheduleMeetCommand implements ISlashCommand {
         const [time, day]: Array<string> = context.getArguments()
         var [hour,minute] = time.split(":")
 
-        const hrs = parseInt(hour as string, 10)
-        const mins = parseInt(minute as string, 10)
+        const data_hrs = parseInt(hour as string, 10)
+        const data_mins = parseInt(minute as string, 10)
 
-        const dayind = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(day)
+        const data_dayind = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(day)
 
-        await persistSchedule(persis,commandroom.slugifiedName, {data : `${mins};${hrs};${dayind}`})
+        await persistSchedule(persis,commandroom.slugifiedName, {data : `${data_mins};${data_hrs};${data_dayind}`})
 
         var sch = new Array(7);
 
