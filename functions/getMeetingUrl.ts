@@ -12,7 +12,7 @@ export async function getMeetingUrl(read: IRead, password: string, context: Slas
     const moderatorPW = await set.getValueById('BigBlueButton_moderatorPW')
     const attendeePW = await set.getValueById('BigBlueButton_attendeePW')
     const meetingId = getGUID()
-    const meetingName = context.getRoom()
+    const meetingName = context.getRoom().slugifiedName
     const sender = context.getSender()
 
     const query = `name=${meetingName}&meetingID=${meetingId}&attendeePW=${attendeePW}&moderatorPW=${moderatorPW}&record=true`
@@ -25,7 +25,7 @@ export async function getMeetingUrl(read: IRead, password: string, context: Slas
 
     if(response.statusCode === 200){
         const joinquery = `fullName=${sender.name}&meetingID=${meetingId}&password=${password}&redirect=true`
-        const joinsha1string = "join" + joinquery + `${this.sharedSecret}`
+        const joinsha1string = "join" + joinquery + `${sharedSecret}`
         const joinsha1 = sha1(joinsha1string)
         const joinurl = bbbserver + "/bigbluebutton/api/join?" + joinquery + `&checksum=${joinsha1}`
         return joinurl

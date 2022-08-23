@@ -46,22 +46,4 @@ export const BbbSettings : Array<ISetting> = [
         i18nLabel: 'BigBlueButton attendeePW',
         i18nDescription: 'The password to let the person join as an attendee of the meeting',
     },
-    {
-        id: Settings.BbbMeetingName,
-        type: SettingType.STRING,
-        packageValue: '',
-        required: true,
-        public: true,
-        i18nLabel: 'BigBlueButton Meeting Name',
-        i18nDescription: 'The name of the meeting',
-    },
-    {
-        id: Settings.BbbMeetingId,
-        type: SettingType.STRING,
-        packageValue: '',
-        required: true,
-        public: true,
-        i18nLabel: 'BigBlueButton Meeting Id',
-        i18nDescription: 'The Id of the meeting',
-    },
 ]
