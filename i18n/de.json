@@ -1,0 +1,4 @@
+{
+  "bbb_additional_params": "spezifische Einstellungen zum BBB-Client",
+  "bbb_additional_params_Description": "Hier können die benutzerspezifische Parameter für den BBB-Client angegeben werden" 
+}

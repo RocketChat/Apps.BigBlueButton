@@ -4,6 +4,7 @@ export enum AppSetting {
 	Url = 'bbb_url',
 	Secret = 'bbb_shared_secret',
 	RegisterHook = 'bbb_register_hook',
+	AdditionalParams = 'bbb_additional_params',
 }
 
 export const settings: Array<ISetting> = [
@@ -33,5 +34,15 @@ export const settings: Array<ISetting> = [
 		public: true,
 		i18nLabel: AppSetting.RegisterHook,
 		i18nDescription: `${AppSetting.RegisterHook}_description`,
+	},
+	{
+		id: AppSetting.AdditionalParams,
+		type: SettingType.CODE,
+		multiline: true,
+		packageValue: '',
+		required: false,
+		public: false,
+		i18nLabel: AppSetting.AdditionalParams,
+		i18nDescription: `${AppSetting.AdditionalParams}_description`,
 	},
 ];
