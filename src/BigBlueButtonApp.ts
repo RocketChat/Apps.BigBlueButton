@@ -22,6 +22,8 @@ export class BigBlueButtonApp extends App {
 
 	public registerHook = true;
 
+	public additionalParams: Record<string, any> = {};
+
 	constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
 		super(info, logger, accessors);
 	}
@@ -42,6 +44,12 @@ export class BigBlueButtonApp extends App {
 
 	public async onEnable(environmentRead: IEnvironmentRead, _configModify: IConfigurationModify): Promise<boolean> {
 		const settings = environmentRead.getSettings();
+
+		try {
+			this.additionalParams = JSON.parse(await settings.getValueById(AppSetting.AdditionalParams));
+		} catch (error) {
+			this.getLogger().error(error);
+		}
 
 		const provider = this.getProvider();
 
@@ -64,6 +72,13 @@ export class BigBlueButtonApp extends App {
 				break;
 			case AppSetting.RegisterHook:
 				this.registerHook = setting.value;
+				break;
+			case AppSetting.AdditionalParams:
+				try {
+					this.additionalParams = JSON.parse(setting.value);
+				} catch (error) {
+					this.getLogger().error(error);
+				}
 				break;
 		}
 	}
