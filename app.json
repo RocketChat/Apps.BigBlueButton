@@ -5,7 +5,7 @@
     "iconFile": "icon.png",
     "author": {
         "name": "Rocket.Chat Technologies Corp.",
-        "homepage": "https://github.com/RocketChat/Rocket.Chat",
+        "homepage": "rocket.chat",
         "support": "support@rocket.chat"
     },
     "name": "Big Blue Button",
