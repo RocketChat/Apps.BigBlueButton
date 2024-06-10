@@ -10,6 +10,7 @@ import type {
 import { XMLParser } from 'fast-xml-parser';
 
 import type { BigBlueButtonApp } from './BigBlueButtonApp';
+import { AppSetting, settings } from './settings';
 
 const methodsWithoutChecksum = ['setConfigXML', '/', 'enter', 'configXML', 'signOut'];
 const apiParams: Record<string, [string | RegExp, boolean][]> = {
@@ -30,6 +31,7 @@ const apiParams: Record<string, [string | RegExp, boolean][]> = {
 		['moderatorOnlyMessage', false],
 		['autoStartRecording', false],
 		['allowStartStopRecording', false],
+		['guestPolicy',false],
 		[/meta_\w+/, false],
 	],
 	'join': [
@@ -164,13 +166,16 @@ export class BBBProvider implements IVideoConfProvider {
 		this.app.getLogger().log('Creating new meeting', call._id);
 
 		const meetingID = call._id;
-
+		const settings = this.app.getAccessors().environmentReader.getSettings();
+		const guestPolicy = await settings.getValueById(AppSetting.GuestPolicy);
+		
 		const createUrl = this.getUrlFor('create', {
 			name: call.title || 'Rocket.Chat',
 			meetingID,
 			attendeePW: 'rocket.chat.attendee',
 			moderatorPW: 'rocket.chat.moderator',
 			welcome: '<br>Welcome to <b>%%CONFNAME%%</b>!',
+			guestPolicy : guestPolicy,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5chat: false,
 			// eslint-disable-next-line @typescript-eslint/camelcase

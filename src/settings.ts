@@ -3,6 +3,7 @@ import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/setti
 export enum AppSetting {
 	Url = 'bbb_url',
 	Secret = 'bbb_shared_secret',
+	GuestPolicy = 'bbb_guest_policy',
 	RegisterHook = 'bbb_register_hook',
 	AdditionalParams = 'bbb_additional_params',
 }
@@ -26,6 +27,15 @@ export const settings: Array<ISetting> = [
 		i18nLabel: AppSetting.Secret,
 		i18nDescription: `${AppSetting.Secret}_description`,
 	},
+	{
+		id: AppSetting.GuestPolicy,
+		type: SettingType.STRING,
+		packageValue: 'ALWAYS_ACCEPT',
+		required: true,
+		public: true,
+		i18nLabel: AppSetting.GuestPolicy,
+		i18nDescription: `${AppSetting.GuestPolicy}_description`,
+	},	
 	{
 		id: AppSetting.RegisterHook,
 		type: SettingType.BOOLEAN,
