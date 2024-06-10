@@ -5,6 +5,7 @@ export enum AppSetting {
 	Secret = 'bbb_shared_secret',
 	GuestPolicy = 'bbb_guest_policy',
 	WelcomeMsg = 'bbb_welcome_message',
+	LogoutURL = 'bbb_logout_url',
 	RegisterHook = 'bbb_register_hook',
 	AdditionalParams = 'bbb_additional_params',
 }
@@ -45,6 +46,15 @@ export const settings: Array<ISetting> = [
 		public: true,
 		i18nLabel: AppSetting.WelcomeMsg,
 		i18nDescription: `${AppSetting.WelcomeMsg}_description`,
+	},
+	{
+		id: AppSetting.LogoutURL,
+		type: SettingType.STRING,
+		packageValue: 'https://fr.rocket.chat/',
+		required: true,
+		public: true,
+		i18nLabel: AppSetting.LogoutURL,
+		i18nDescription: `${AppSetting.LogoutURL}_description`,
 	},
 	{
 		id: AppSetting.RegisterHook,
