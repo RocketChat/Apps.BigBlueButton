@@ -168,14 +168,15 @@ export class BBBProvider implements IVideoConfProvider {
 		const meetingID = call._id;
 		const settings = this.app.getAccessors().environmentReader.getSettings();
 		const guestPolicy = await settings.getValueById(AppSetting.GuestPolicy);
+		const welcomeMsg = await settings.getValueById(AppSetting.WelcomeMsg);
 		
 		const createUrl = this.getUrlFor('create', {
 			name: call.title || 'Rocket.Chat',
 			meetingID,
 			attendeePW: 'rocket.chat.attendee',
 			moderatorPW: 'rocket.chat.moderator',
-			welcome: '<br>Welcome to <b>%%CONFNAME%%</b>!',
-			guestPolicy : guestPolicy,
+			welcome: welcomeMsg,
+			guestPolicy : guestPolicy,			
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5chat: false,
 			// eslint-disable-next-line @typescript-eslint/camelcase
