@@ -50,8 +50,8 @@ export const settings: Array<ISetting> = [
 	{
 		id: AppSetting.LogoutURL,
 		type: SettingType.STRING,
-		packageValue: 'https://fr.rocket.chat/',
-		required: true,
+		packageValue: '',
+		required: false,
 		public: true,
 		i18nLabel: AppSetting.LogoutURL,
 		i18nDescription: `${AppSetting.LogoutURL}_description`,
