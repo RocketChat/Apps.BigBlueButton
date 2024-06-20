@@ -33,7 +33,7 @@ export const settings: Array<ISetting> = [
 		id: AppSetting.GuestPolicy,
 		type: SettingType.STRING,
 		packageValue: 'ALWAYS_ACCEPT',
-		required: true,
+		required: false,
 		public: true,
 		i18nLabel: AppSetting.GuestPolicy,
 		i18nDescription: `${AppSetting.GuestPolicy}_description`,
