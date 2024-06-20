@@ -167,10 +167,33 @@ export class BBBProvider implements IVideoConfProvider {
 
 		const meetingID = call._id;
 		const settings = this.app.getAccessors().environmentReader.getSettings();
-		const guestPolicy = await settings.getValueById(AppSetting.GuestPolicy);
+		var guestPolicy = await settings.getValueById(AppSetting.GuestPolicy);
 		const welcomeMsg = await settings.getValueById(AppSetting.WelcomeMsg);
-		const logoutURL = await settings.getValueById(AppSetting.LogoutURL);
+		var logoutURL = await settings.getValueById(AppSetting.LogoutURL);
 		
+		// validate guestPolicy
+		var guestPolicyAcceptable: Array<string> = ['ALWAYS_ACCEPT', 'ALWAYS_DENY', 'ASK_MODERATOR'];
+		if (!guestPolicy) {
+			//set default value
+			guestPolicy = 'ASK_MODERATOR';
+		}
+		guestPolicy = guestPolicy.toUpperCase();
+		
+		if (!(guestPolicyAcceptable.includes(guestPolicy))) {
+			throw new Error('BBB guestPolicy settings has bad value : '+guestPolicy);
+		}
+		
+		// validate logoutURL
+		try {
+			const validateLogoutUrl = new URL(logoutURL);
+			if(!(validateLogoutUrl.protocol === 'http:') && !(validateLogoutUrl.protocol === 'https:')) {
+				throw new Error('BBB logoutURL settings is not a valid url : '+logoutURL);
+			}
+			
+		} catch (err) {
+			throw new Error('BBB logoutURL settings has bad value : '+logoutURL);
+		}		
+
 		const createUrl = this.getUrlFor('create', {
 			name: call.title || 'Rocket.Chat',
 			meetingID,
