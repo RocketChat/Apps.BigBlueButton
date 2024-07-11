@@ -346,7 +346,7 @@ export class BBBProvider implements IVideoConfProvider {
 		if (method === 'join') {
 			Object.keys(this.app.additionalParams)
 				.filter((key) => key.startsWith('userdata-bbb'))
-				.forEach((key) => paramList.push(this.app.additionalParams[key]));
+				.forEach((key) => paramList.push(`${this.encodeForUrl(key)}=${this.encodeForUrl(this.app.additionalParams[key])}`));
 		}
 
 		const query = paramList.join('&');
