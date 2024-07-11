@@ -8,8 +8,10 @@ import type {
 	VideoConfDataExtended,
 } from '@rocket.chat/apps-engine/definition/videoConfProviders';
 import { XMLParser } from 'fast-xml-parser';
+import { URL } from 'url';
 
 import type { BigBlueButtonApp } from './BigBlueButtonApp';
+import { AppSetting, settings } from './settings';
 
 const methodsWithoutChecksum = ['setConfigXML', '/', 'enter', 'configXML', 'signOut'];
 const apiParams: Record<string, [string | RegExp, boolean][]> = {
@@ -30,6 +32,7 @@ const apiParams: Record<string, [string | RegExp, boolean][]> = {
 		['moderatorOnlyMessage', false],
 		['autoStartRecording', false],
 		['allowStartStopRecording', false],
+		['guestPolicy',false],
 		[/meta_\w+/, false],
 	],
 	'join': [
@@ -164,13 +167,17 @@ export class BBBProvider implements IVideoConfProvider {
 		this.app.getLogger().log('Creating new meeting', call._id);
 
 		const meetingID = call._id;
-
-		const createUrl = this.getUrlFor('create', {
+		const settings = this.app.getAccessors().environmentReader.getSettings();
+		var guestPolicy = await settings.getValueById(AppSetting.GuestPolicy);
+		const welcomeMsg = await settings.getValueById(AppSetting.WelcomeMsg);
+		var logoutURL = await settings.getValueById(AppSetting.LogoutURL);
+		
+		var createUrlParams =  {
 			name: call.title || 'Rocket.Chat',
 			meetingID,
 			attendeePW: 'rocket.chat.attendee',
 			moderatorPW: 'rocket.chat.moderator',
-			welcome: '<br>Welcome to <b>%%CONFNAME%%</b>!',
+			welcome: welcomeMsg,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5chat: false,
 			// eslint-disable-next-line @typescript-eslint/camelcase
@@ -181,7 +188,37 @@ export class BBBProvider implements IVideoConfProvider {
 			meta_html5autosharewebcam: false,
 			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5hidepresentation: true,
-		});
+		}
+
+		// validate guestPolicy
+		var guestPolicyAcceptable: Array<string> = ['ALWAYS_ACCEPT', 'ALWAYS_DENY', 'ASK_MODERATOR'];
+		if (guestPolicy !== null && guestPolicy !== '') {
+			guestPolicy = guestPolicy.toUpperCase();
+		
+			if (!(guestPolicyAcceptable.includes(guestPolicy))) {
+				throw new Error('BBB guestPolicy settings has bad value : '+guestPolicy);
+			}
+			else {
+				createUrlParams['guestPolicy'] = guestPolicy
+			}
+		}
+
+		// validate logoutURL
+		if (logoutURL !== null && logoutURL !== '') {
+			try {
+				const validateLogoutUrl = new URL(logoutURL);
+				if(!(validateLogoutUrl.protocol === 'http:') && !(validateLogoutUrl.protocol === 'https:')) {
+					throw new Error('BBB logoutURL settings is not a valid url : '+logoutURL);
+				}
+				else {
+					createUrlParams['logoutURL'] = logoutURL
+				}						
+			} catch (err) {
+				throw new Error('BBB logoutURL settings has bad value : '+logoutURL+' - error : '+err.message);
+			}		
+		}
+
+		const createUrl = this.getUrlFor('create', createUrlParams);
 
 		this.app.getLogger().debug('URL', createUrl);
 

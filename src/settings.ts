@@ -3,6 +3,9 @@ import { ISetting, SettingType } from '@rocket.chat/apps-engine/definition/setti
 export enum AppSetting {
 	Url = 'bbb_url',
 	Secret = 'bbb_shared_secret',
+	GuestPolicy = 'bbb_guest_policy',
+	WelcomeMsg = 'bbb_welcome_message',
+	LogoutURL = 'bbb_logout_url',
 	RegisterHook = 'bbb_register_hook',
 	AdditionalParams = 'bbb_additional_params',
 }
@@ -25,6 +28,33 @@ export const settings: Array<ISetting> = [
 		public: true,
 		i18nLabel: AppSetting.Secret,
 		i18nDescription: `${AppSetting.Secret}_description`,
+	},
+	{
+		id: AppSetting.GuestPolicy,
+		type: SettingType.STRING,
+		packageValue: 'ALWAYS_ACCEPT',
+		required: false,
+		public: true,
+		i18nLabel: AppSetting.GuestPolicy,
+		i18nDescription: `${AppSetting.GuestPolicy}_description`,
+	},
+	{
+		id: AppSetting.WelcomeMsg,
+		type: SettingType.STRING,
+		packageValue: '<br>Welcome to <b>%%CONFNAME%%</b>!',
+		required: true,
+		public: true,
+		i18nLabel: AppSetting.WelcomeMsg,
+		i18nDescription: `${AppSetting.WelcomeMsg}_description`,
+	},
+	{
+		id: AppSetting.LogoutURL,
+		type: SettingType.STRING,
+		packageValue: '',
+		required: false,
+		public: true,
+		i18nLabel: AppSetting.LogoutURL,
+		i18nDescription: `${AppSetting.LogoutURL}_description`,
 	},
 	{
 		id: AppSetting.RegisterHook,
