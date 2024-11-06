@@ -1,6 +1,5 @@
 import { HttpStatusCode, IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-// import { VideoConferenceStatus } from '@rocket.chat/apps-engine/definition/videoConferences/IVideoConference';
 
 import type { BigBlueButtonApp } from '../BigBlueButtonApp';
 

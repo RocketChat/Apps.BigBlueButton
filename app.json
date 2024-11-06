@@ -1,7 +1,7 @@
 {
     "id": "c95ba73a-0485-4d12-ae8a-a3e68330065a",
     "version": "1.0.8",
-    "requiredApiVersion": "^1.33.0",
+    "requiredApiVersion": "^1.44.0",
     "iconFile": "icon.png",
     "author": {
         "name": "Rocket.Chat Technologies Corp.",

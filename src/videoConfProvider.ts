@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { URL } from 'url';
 
 import { HttpStatusCode } from '@rocket.chat/apps-engine/definition/accessors';
@@ -194,15 +193,10 @@ export class BBBProvider implements IVideoConfProvider {
 			attendeePW: 'rocket.chat.attendee',
 			moderatorPW: 'rocket.chat.moderator',
 			welcome: welcomeMsg,
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5chat: false,
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5navbar: false,
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5autoswaplayout: true,
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5autosharewebcam: false,
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			meta_html5hidepresentation: true,
 		};
 
@@ -286,7 +280,7 @@ export class BBBProvider implements IVideoConfProvider {
 		}
 	}
 
-	private keyMatchesAnyFilter(key: string, filters: typeof apiParams[string]): boolean {
+	private keyMatchesAnyFilter(key: string, filters: (typeof apiParams)[string]): boolean {
 		if (key.match(/^custom_/)) {
 			return true;
 		}
