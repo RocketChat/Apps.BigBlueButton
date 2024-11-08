@@ -9,12 +9,7 @@
 		"strictNullChecks": true,
 		"noImplicitReturns": true,
 		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"forceConsistentCasingInFileNames": true,
-		"importsNotUsedAsValues": "error"
+		"experimentalDecorators": true
 	},
-	"exclude": ["node_modules"],
-	"include": [
-		"**/*.ts"
-	]
+	"include": ["**/*.ts"]
 }
